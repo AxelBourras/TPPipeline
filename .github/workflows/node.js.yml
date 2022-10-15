@@ -11,21 +11,42 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    defaults:
+      run:
+        working-directory : hello-world
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+    #- run: npm run build --if-present
+    #- run: npm test
+    - name: Checkout
+      uses: actions/checkout@v3
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+        repository: ${{github.repository}}
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3.5.0
+      with:
+        node-version: ${{matrix.node-version}}
+    - name: Cache node modules
+      id: cache-nodemodules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: node_modules # 👈 path for node_modules folder
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+    - name: Install Dependencies
+      if:
+        github.event.pull_request.merged==true 
+      run: npm install
+    - name: Build
+      if: github.event.pull_request.merged==true 
+      run: npm run build:prod
