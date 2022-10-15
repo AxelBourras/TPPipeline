@@ -59,7 +59,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       with:
-        repository: ${{github.repository}}/TPPipeline/hello-world/
+        repository: ${{github.repository}}
     - name: All things angular
       uses: AhsanAyaz/angular-deploy-gh-pages-actions@v1.3.2 ## replace by latest version without it you will see Expected format {org}/{repo}[/path]@ref. Actual 'AhsanAyaz/angular-deploy-gh-pages-actions',Input string was not in a correct format.
       with:
